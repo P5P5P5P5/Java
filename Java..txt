@@ -1,0 +1,291 @@
+Q1: Merge two arrays by satisfying given constraints
+Given two sorted arrays X[] and Y[] of size m and n each where m >= n and X[] has exactly n vacant cells,
+merge elements of Y[] in their correct position in array X[], i.e., merge (X, Y) by keeping the sorted order.
+
+For example,
+
+Input: X[] = { 0, 2, 0, 3, 0, 5, 6, 0, 0 }
+Y[] = { 1, 8, 9, 10, 15 } The vacant cells in X[] is represented by 0
+Output: X[] = { 1, 2, 3, 5, 6, 8, 9, 10, 15 }
+
+
+
+Ans:
+
+X[] = { 0, 2, 0, 3, 0, 5, 6, 0, 0 }
+Y[] = { 1, 8, 9, 10, 15 }
+ 
+class Main
+{
+    // Function to merge `X[0… m]` and `Y[0… n]` into `X[0… m+n+1]`
+    private static void merge(int[] X, int[] Y, int m, int n)
+    {
+        // size of `X[]` is `k+1`
+        int k = m + n + 1;
+ 
+        // run if X[] or Y[] has elements left
+        while (m >= 0 && n >= 0)
+        {
+            // put the next greater element in the next free position in `X[]`
+            // from the end
+            if (X[m] > Y[n]) {
+                X[k--] = X[m--];
+            }
+            else {
+                X[k--] = Y[n--];
+            }
+        }
+ 
+        // copy the remaining elements of `Y[]` (if any) to `X[]`
+        while (n >= 0) {
+            X[k--] = Y[n--];
+        }
+ 
+        // fill `Y[]` with all zeros
+        Arrays.fill(Y, 0);
+    }
+
+// The function moves non-empty elements in `X[]` in the
+// beginning and then merge them with `Y[]`
+public static void rearrange(int[] X, int[] Y)
+{
+// return if `X` is empty
+if (X.length == 0) {
+return;
+}
+
+// moves non-empty elements of `X[]` at the beginning
+int k = 0;
+for (int value: X)
+{
+if (value != 0) {
+X[k++] = value;
+}
+}
+
+// merge `X[0…k-1]` and `Y[0… n-1]` into `X[0… m-1]`
+merge(X, Y, k - 1, Y.length - 1);
+}
+
+public static void main (String[] args)
+{
+// vacant cells in `X[]` is represented by 0
+int[] X = { 0, 2, 0, 3, 0, 5, 6, 0, 0};
+int[] Y = { 1, 8, 9, 10, 15 };
+
+/* Validate input before calling `rearrange()`
+1. Both arrays `X[]` and `Y[]` should be sorted (ignore 0's in `X[]`)
+2. Size of array `X[]` >= size of array `Y[]` (i.e., `m >= n`)
+3. Total number of vacant cells in array `X[]` = size of array `Y[]` */
+
+// merge `Y[]` into `X[]`
+rearrange(X, Y);
+
+// print merged array
+System.out.println(Arrays.toString(X));
+}
+}
+
+
+Output: X[] = { 1, 2, 3, 5, 6, 8, 9, 10, 15 }
+
+
+
+Q2:Find maximum sum path involving elements of given arrays
+Given two sorted arrays of integers, find a maximum sum path involving elements of both arrays whose sum is maximum.
+We can start from either array, but we can switch between arrays only through its common elements.
+
+For example,
+
+Input: X = { 3, 6, 7, 8, 10, 12, 15, 18, 100 }
+Y = { 1, 2, 3, 5, 7, 9, 10, 11, 15, 16, 18, 25, 50 }
+The maximum sum path is: 1 —> 2 —> 3 —> 6 —> 7 —> 9 —> 10 —> 12 —> 15 —> 16 —> 18 —> 100
+The maximum sum is 199.
+
+
+Ans:
+Class Main
+{
+// Function to find the maximum sum path in two given arrays.
+// The code is similar to the merge routine of the merge sort algorithm
+public static int findMaxSum(int[] X, int[] Y)
+{
+int sum = 0;
+int sum_x = 0, sum_y = 0;
+
+int m = X.length, n = Y.length;
+
+// `i` and `j` denotes the current index of `X` and `Y`, respectively
+int i = 0, j = 0;
+
+// loop till `X` and `Y` are empty
+while (i < m && j < n)
+{
+// to handle the duplicate elements in `X`
+while (i < m-1 && X[i] == X[i+1]) {
+sum_x += X[i++];
+}
+
+// to handle the duplicate elements in `Y`
+while (j < n-1 && Y[j] == Y[j+1]) {
+sum_y += Y[j++];
+}
+
+// if the current element of `Y` is less than the current element of `X`
+if (Y[j] < X[i])
+{
+sum_y += Y[j];
+j++;
+}
+
+// if the current element of `X` is less than the current element of `Y`
+else if (X[i] < Y[j])
+{
+sum_x += X[i];
+i++;
+}
+
+else // if (X[i] == Y[j])
+{
+// consider the maximum sum and include the current cell's value
+sum += Integer.max(sum_x, sum_y) + X[i];
+
+// move both indices by 1 position
+i++;
+j++;
+
+// reset both sums
+sum_x = 0;
+sum_y = 0;
+}
+}
+
+// process the remaining elements of `X` (if any)
+while (i < m) {
+sum_x += X[i++];
+}
+
+// process the remaining elements of `Y` (if any)
+while (j < n) {
+sum_y += Y[j++];
+}
+
+sum += Integer.max(sum_x, sum_y);
+return sum;
+}
+
+public static void main(String[] args)
+{
+int[] X = { 3, 6, 7, 8, 10, 12, 15, 18, 100 };
+int[] Y = { 1, 2, 3, 5, 7, 9, 10, 11, 15, 16, 18, 25, 50 };
+
+System.out.println("The maximum sum is " + findMaxSum(X, Y));
+}
+}
+Output is :
+The maximum sum is 199.
+
+
+Q3:Write a Java Program to count the number of words in a string using HashMap.
+Ans:
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class WordCounter {
+
+public static void main(String[] args) {
+Scanner scanner = new Scanner(System.in);
+System.out.println("Enter your string:");
+String input = scanner.nextLine();
+
+Map<String, Integer> wordCounts = countWords(input);
+
+System.out.println("Occurrences of each word:");
+for (Map.Entry<String, Integer> entry : wordCounts.entrySet()) {
+System.out.println(entry.getKey() + ": " + entry.getValue());
+}
+}
+
+public static Map<String, Integer> countWords(String input) {
+Map<String, Integer> wordCountMap = new HashMap<>();
+
+String[] words = input.split("\\s+");
+
+for (String word : words) {
+word = word.toLowerCase();
+wordCountMap.put(word, wordCountMap.getOrDefault(word, 0) + 1);
+}
+
+return wordCountMap;
+}
+}
+Output:
+Enter your string:
+Hello world! Hello everyone!
+Occurrences of each word:
+hello: 2
+world!: 1
+everyone!: 1
+
+Q4:Write a Java Program to find the duplicate characters in a string.
+
+Ans :
+
+Algorithm :
+
+STEP 1: START
+STEP 2: DEFINE String string1 = "Great responsibility"
+STEP 3: DEFINE count
+STEP 4: CONVERT string1 into char string[].
+STEP 5: PRINT "Duplicate characters in a given string:"
+STEP 6: SET i = 0. REPEAT STEP 7 to STEP 11 UNTIL i<string.length< li="">
+STEP 7: SET count =1
+STEP 8: SET j = i+1. REPEAT STEP 8 to STEP 10 UNTIL j<string.length< li="">
+STEP 9: IF (string[i] == string[j] && string[i] != ' ')
+              then
+              count = count + 1
+              string[j]= 0
+STEP 10: j = j + 1
+STEP 11: i = i + 1
+STEP 12: IF(count>1 && string[i] != 0) then PRINT string[i]
+STEP 13: END
+
+Program:
+ 
+public class DuplicateCharacters {    
+     public static void main(String[] args) {    
+        String string1 = "Great responsibility";    
+        int count;    
+            
+        //Converts given string into character array    
+        char string[] = string1.toCharArray();    
+            
+        System.out.println("Duplicate characters in a given string: ");    
+        //Counts each character present in the string    
+        for(int i = 0; i <string.length; i++) {    
+            count = 1;    
+            for(int j = i+1; j <string.length; j++) {    
+                if(string[i] == string[j] && string[i] != ' ') {    
+                    count++;    
+                    //Set string[j] to 0 to avoid printing visited character    
+                    string[j] = '0';    
+                }    
+            }    
+            //A character is considered as duplicate if count is greater than 1    
+            if(count > 1 && string[i] != '0')    
+                System.out.println(string[i]);    
+        }    
+    }    
+}     
+Output is :
+
+Duplicate characters in a given string:
+r
+e
+t
+s
+i
+
+
+ 
